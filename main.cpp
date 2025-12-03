@@ -154,129 +154,131 @@ public:
         m_dealerHand = Hand();
     };
 
-    Hand getPlayerHand(Deck d, Hand h){
-        for (int i = 0; i < 2; i++)
+    Hand getPlayerHand(Deck &d, Hand &h){
+        char choice;
+
+        do
         {
-            h.operator+=(d.dealCard());
+            cout<<"Your Cards:"<<endl;
+            for (int i = 0; i< h.cardCount(); i++)
+            {
+                cout<<h.displayCard(i).getCard()<<endl;
+            }
 
-        }
+            do
+            {
+                cout<<endl<<"hit or stand? (h/s): ";
+                cin >> choice;
 
-        return m_playerHand;
+                choice = tolower(choice);
+
+                if (choice != 'h' && choice != 's')
+                {
+                    cout << "Invalid input. Please enter 'h' or 's'." << endl;
+                    cin.clear();
+                    cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
+                }
+            } while (choice != 'h' && choice != 's');
+
+            if (choice == 'h')
+            {
+                if (d.getCount() == 0) {
+                    d = Deck();
+                }
+
+                h+=(d.dealCard());
+
+                if (h.getPoints() > 21 )
+                {
+                    break;
+                }
+            }
+
+        } while (choice != 's');
+
+        return h;
     };
 
-    Hand getDealerHand(Deck d, Hand h){
-        for (int i = 0; i < 2; i++)
+    Hand getDealerHand(Deck &d, Hand &h){
+        while (h.getPoints() < 17)
         {
-            h.operator+=(d.dealCard());
-
+            h+=d.dealCard();
         }
 
-        return m_dealerHand;
+        return h;
     };
 
-    void displayRound(){};
+    void displayCards(Hand &h, string title)
+    {
+        cout <<title<<endl;
+        for (int i = 0; i<h.cardCount(); i++)
+        {
+            cout<<h.displayCard(i).getCard()<<endl;
+        }
+        cout<<endl;
+    };
+
+    void displayRound()
+    {
+        displayCards(m_playerHand, "Your Cards: ");
+        displayCards(m_dealerHand, "Dealer's Cards: ");
+
+        cout << "Your Points: "<<m_playerHand.getPoints()<<endl;
+        cout<< "Dealer's Points: "<<m_dealerHand.getPoints() << endl;
+
+        if (m_playerHand.getPoints() > 21)
+        {
+            cout<<"Sorry. You busted. You lose."<<endl;
+        } else if (m_dealerHand.getPoints()> 21)
+        {
+            cout<<"Yay! The dealer busted. You win!"<<endl;
+        } else if (m_dealerHand.getPoints() == 21 && m_playerHand.getPoints() == 21)
+        {
+            cout<<"Dang, dealer has blackjack too. You push."<<endl;
+        }else if (m_dealerHand.getPoints() ==21)
+        {
+            cout<<"Dealer has Blackjack. You lose."<<endl;
+        } else if (m_playerHand.getPoints() == 21)
+        {
+            cout<<"Blackjack! You win!"<<endl;
+        }else if (m_dealerHand.getPoints() == m_playerHand.getPoints()){
+            cout<<"It's a tie! You push."<<endl;
+        } else if (m_playerHand.getPoints() > m_dealerHand.getPoints())
+        {
+            cout<<"Hooray! You win!"<<endl;
+        } else if (m_dealerHand.getPoints() > m_playerHand.getPoints())
+        {
+            cout<<"Sorry. You lose."<<endl;
+        } else
+        {
+            cout<<"I'm not sure what happened."<<endl;
+        }
+
+        cout<<endl;
+    }
 
     void playGame()
     {
         char again;
         do
         {
-            for (int i = 0; i < 2; i++)
-            {
-                m_playerHand+=(m_deck.dealCard());
-                m_dealerHand+=(m_deck.dealCard());
 
-            }
 
             cout<<"###########################"<<endl;
             cout<<"#  The Game of Blackjack  #"<<endl;
             cout<<"###########################"<<endl<<endl;
-            cout<<"Test: "<<m_dealerHand.cardCount()<<endl<<endl;
 
-            cout<<"Dealer's Show Card:"<<endl;
-            cout<<m_dealerHand.displayCard(0).getCard()<<endl;
-            cout<<endl;
+            m_playerHand+=m_deck.dealCard();
+            m_dealerHand+=m_deck.dealCard();
+            m_playerHand+=m_deck.dealCard();
 
-            char choice;
+            displayCards(m_dealerHand, "Dealer's Show Card: ");
 
-            do
-            {
-                cout<<"Your Cards:"<<endl;
-                for (int i = 0; i< m_playerHand.cardCount(); i++)
-                {
-                    cout<<m_playerHand.displayCard(i).getCard()<<endl;
-                }
+            getPlayerHand(m_deck, m_playerHand);
 
-                do
-                {
-                    cout<<endl<<"hit or stand? (h/s): ";
-                    cin >> choice;
+            getDealerHand(m_deck, m_dealerHand);
 
-                    choice = tolower(choice);
-
-                    if (choice != 'h' && choice != 's')
-                    {
-                        cout << "Invalid input. Please enter 'h' or 's'." << endl;
-                        cin.clear();
-                        cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
-                    }
-                } while (choice != 'h' && choice != 's');
-
-                if (choice == 'h')
-                {
-                    if (m_deck.getCount() == 0) {
-                        m_deck = Deck();
-                    }
-
-                    m_playerHand+=(m_deck.dealCard());
-
-                    if (m_playerHand.getPoints() > 21 )
-                    {
-                        break;
-                    }
-                }
-
-            } while (choice != 's');
-
-            cout <<"Dealer's Cards: "<<endl;
-            for (int d = 0; d<m_dealerHand.cardCount(); d++)
-            {
-                cout<<m_dealerHand.displayCard(d).getCard()<<endl;
-            }
-            cout<<endl;
-
-            cout << "Your Points: "<<m_playerHand.getPoints()<<endl;
-            cout<< "Dealer's Points: "<<m_dealerHand.getPoints() << endl;
-
-            if (m_playerHand.getPoints() > 21)
-            {
-                cout<<"Sorry. You busted. You lose."<<endl;
-            } else if (m_dealerHand.getPoints()> 21)
-            {
-                cout<<"Yay! The dealer busted. You win!"<<endl;
-            } else if (m_dealerHand.getPoints() == 21 && m_playerHand.getPoints() == 21)
-            {
-                cout<<"Dang, dealer has blackjack too. You push."<<endl;
-            }else if (m_dealerHand.getPoints() ==21)
-            {
-                cout<<"Dealer has Blackjack. You lose."<<endl;
-            } else if (m_playerHand.getPoints() == 21)
-            {
-                cout<<"Blackjack! You win!"<<endl;
-            }else if (m_dealerHand.getPoints() == m_playerHand.getPoints()){
-                cout<<"It's a tie! You push."<<endl;
-            } else if (m_playerHand.getPoints() > m_dealerHand.getPoints())
-            {
-                cout<<"Hooray! You win!"<<endl;
-            } else if (m_dealerHand.getPoints() > m_playerHand.getPoints())
-            {
-                cout<<"Sorry. You lose."<<endl;
-            } else
-            {
-                cout<<"I'm not sure what happened."<<endl;
-            }
-
-            cout<<endl;
+            displayRound();
 
             m_dealerHand.clearHand();
             m_playerHand.clearHand();
